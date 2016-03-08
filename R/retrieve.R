@@ -13,7 +13,7 @@
 retrieve <- function(ncfile=NULL,...) UseMethod("retrieve")
 
 ## Default function
-retrieve.default <- function(ncfile,param="auto",type="ncdf4",
+retrieve.default <- function(ncfile,param="auto",type="ncdf",
                              path=NULL,verbose=FALSE,...) {
     if (verbose) print('retrieve.default')
     ##
