@@ -513,8 +513,8 @@ as.field.zoo <- function(x,lon,lat,param,unit,
 as.field.default <- function(x,index,lon,lat,param,unit,
                          longname=NA,quality=NA,src=NA,url=NA,
                          reference=NA,info=NA,calendar='gregorian',
-                         greenwich=TRUE, method= NA,type=NA,aspect=NA) {
-
+                         greenwich=TRUE, method= NA,type=NA,aspect=NA,verbose=FALSE) {
+  if(verbose) print("as.field.default")
 #print("as.field.default")
 #create a zoo object z
   z <- zoo(x=x,order.by=index)
@@ -526,12 +526,14 @@ as.field.default <- function(x,index,lon,lat,param,unit,
 }
 
 
-as.field.field <- function(x,...) {
+as.field.field <- function(x,verbose=FALSE,...) {
+  if(verbose) print("as.field.field")
   if (inherits(x,'comb')) x <- as.field.comb(x,...)
   return(x)
 }
 
-as.field.comb <- function(x,iapp=NULL,...) {
+as.field.comb <- function(x,iapp=NULL,verbose=FALSE,...) {
+  if(verbose) print("as.field.comb")
   if (is.null(iapp)) {
     # Drop the appendend fields:
     n <- attr(x,'n.apps')
@@ -548,7 +550,8 @@ as.field.comb <- function(x,iapp=NULL,...) {
   return(y)  
 }
 
-as.field.eof <- function(x,iapp=NULL,...) {
+as.field.eof <- function(x,iapp=NULL,verbose=FALSE,...) {
+  if(verbose) print("as.field.eof")
   #print("as.field.eof")
   if (!inherits(x,'comb')) y <- eof2field(x) else {
    y <- as.eof(x,iapp)
@@ -558,7 +561,8 @@ as.field.eof <- function(x,iapp=NULL,...) {
 }
 
 
-as.field.ds <- function(x,iapp=NULL,...) {
+as.field.ds <- function(x,iapp=NULL,verbose=FALSE,...) {
+  if(verbose) print("as.field.ds")
   ##print(class(x))
   if (inherits(x,'eof')) {
     class(x) <- class(x)[-1]
@@ -568,14 +572,14 @@ as.field.ds <- function(x,iapp=NULL,...) {
 }
 
 
-as.field.station <- function(x,lon=NULL,lat=NULL,nx=30,ny=30,...) {
+as.field.station <- function(x,lon=NULL,lat=NULL,nx=30,ny=30,verbose=FALSE,...) {
+  if(verbose) print("as.field.station")
   if (is.null(lon)) lon <- seq(min(lon(x)),max(lon(x)),length=nx)
   if (is.null(lat)) lat <- seq(min(lat(x)),max(lat(x)),length=ny)
   y <- regrid(x,is=list(lon=lon,lat=lat))
   attr(y,'history') <- history.stamp(x)
   return(y)  
 }
-
 
 
 
