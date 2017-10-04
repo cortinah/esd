@@ -302,7 +302,7 @@ retrieve.ncdf4 <- function (ncfile = ncfile, path = NULL , param = "auto",
     ## time extract range
     if (!is.null(itime)) {
         if (!is.null(time.rng)) {
-            if (length(time.rng) > 2) stop("time.rng should be in the form of c(year1,year2)")
+            if (length(time.rng) > 2) stop("time.rng should be in the form of c(date,date)")
             if (length(time.rng) == 1) {
                 time.w <- which((time$vals-time.rng) == min(abs(time$vals-time.rng)))
                 if (verbose)
@@ -310,10 +310,18 @@ retrieve.ncdf4 <- function (ncfile = ncfile, path = NULL , param = "auto",
                                 time$unit,sep=" "))
             }
             if (length(time.rng) == 2) {
-                if (sum(is.element(time.rng,format.Date(time$vdate,"%Y"))) < 1)
-                    stop("Selected time interval is outside the range of the data") 
-                time.w <- which((format.Date(time$vdate,"%Y") >= time.rng[1]) &
-                                (format.Date(time$vdate,"%Y") <= time.rng[length(time.rng)]))
+                ## HBE 2017-10-04: time.rng can be a date, not always year
+                #if (sum(is.element(time.rng,format.Date(time$vdate,"%Y"))) < 1)
+                #HBE: 2017-10-04 if only years assume to start Jan 01 year1 and end Dec 31 (year2-1)        if (nchar(time.rng[1])==4) {
+                    time.rng=c(paste(time.rng[1],"01","01",sep="-"), 
+                                paste(toString(strtoi(time.rng[2])-1),"12","31",sep="-"))}
+  
+                if (sum(is.element(format.Date(time.rng,"%Y%m%d"),
+                                   format.Date(time$vdate,"%Y%m%d"))) < 1) {
+                    stop("Selected time interval is outside the range of the data")
+                    }
+                time.w <- which((format.Date(time$vdate,"%Y%m%d") >= format.Date(time.rng[1],"%Y%m%d")) &
+                                (format.Date(time$vdate,"%Y%m%d") <= format.Date(time.rng[length(time.rng)],"%Y%m%d")))
                 if (verbose) {
                     if (model$frequency == "mon")
                         print(paste("Selected time values:",
@@ -843,7 +851,7 @@ retrieve.ncdf <- function (ncfile = ncfile, path = NULL , param = "auto",
         if (!is.null(itime)) {
             if (!is.null(time.rng)) {
                 if (length(time.rng) > 2)
-                    stop("time.rng should be in the form of c(year1,year2)")
+                    stop("time.rng should be in the form of c(date1,date2)")
                 if (length(time.rng) == 1) {
                     time.w <- which((time$vals-time.rng) == min(abs(time$vals-time.rng)))
                     if (verbose)
@@ -851,10 +859,19 @@ retrieve.ncdf <- function (ncfile = ncfile, path = NULL , param = "auto",
                                     time$unit,sep=" "))
                 }
                 if (length(time.rng) == 2) {
-                    if (sum(is.element(time.rng,format.Date(time$vdate,"%Y"))) < 1)
-                        stop("Selected time interval is outside the range of the data") 
-                    time.w <- which((format.Date(time$vdate,"%Y") >= time.rng[1]) &
-                                    (format.Date(time$vdate,"%Y") <= time.rng[length(time.rng)]))
+                ## HBE 2017-10-04: time.rng can be a date, not always year
+                #if (sum(is.element(time.rng,format.Date(time$vdate,"%Y"))) < 1)
+                #HBE: 2017-10-04 if only years assume to start Jan 01 year1 and end Dec 31 (year2-1)        
+                if (nchar(time.rng[1])==4) {
+                    time.rng=c(paste(time.rng[1],"01","01",sep="-"),
+                               paste(toString(strtoi(time.rng[2])-1),"12","31",sep="-"))}
+              
+                if (sum(is.element(format.Date(time.rng,"%Y%m%d"),
+                                 format.Date(time$vdate,"%Y%m%d"))) < 1) {
+                stop("Selected time interval is outside the range of the data")
+                }
+                time.w <- which((format.Date(time$vdate,"%Y%m%d") >= format.Date(time.rng[1],"%Y%m%d")) &
+                                (format.Date(time$vdate,"%Y%m%d") <= format.Date(time.rng[length(time.rng)],"%Y%m%d"))) 
                     if (verbose) {
                         if (model$frequency == "mon")
                             print(paste("Selected time values:",
