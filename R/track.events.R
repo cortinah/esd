@@ -639,7 +639,11 @@ Trackstats <- function(x,verbose=FALSE) {
   trackcount <- data.frame(table(rnum))
 
   if(verbose) print("timestep")
-  ts <- unlist(sapply(unique(rnum),function(i) 1:trackcount$Freq[trackcount$rnum==i]))
+  ok <- (trackcount$rnum %in% rnum &
+         !is.na(trackcount$rnum) &
+         !duplicated(trackcount$rnum))
+  trackcount <- trackcount[ok,]
+  ts <- unlist(sapply(trackcount$Freq, function(i) seq(1,i,1)))
   timestep <- rep(NA,length(ts))
   timestep[order(rnum)] <- ts
   if (any(rnum>nummax)) timestep[rnum==(nummax+1)] <- 1
@@ -655,8 +659,23 @@ Trackstats <- function(x,verbose=FALSE) {
     } 
     return(dx)
   }
-  distance <- as.numeric(by(cbind(lons,lats),rnum,fn))*1E-3
-
+  ## KMP: Do in segments because otherwise calculations take forever when rnum is long
+  #t1 <- Sys.time()
+  if(length(rnum)>1E5) {
+    distance <- c()
+    i1 <- 1
+    ivec <- unique(c(seq(1E4, length(rnum), 1E4), length(rnum)))
+    for(i2 in ivec) {
+      di <- as.numeric(by(cbind(lons[i1:i2],lats[i1:i2]), rnum[i1:i2], fn))*1E-3
+      distance <- c(distance,di)
+      i1 <- i2+1
+    }
+  } else {
+    distance <- as.numeric(by(cbind(lons,lats),rnum,fn))*1E-3
+  }
+  #t2 <- Sys.time()
+  #if(verbose) print(t2-t1)
+  
   y$trackcount <- trackcount$Freq[rnum]
   y$trackcount[is.na(y$trajectory)] <- 1
   y$timestep <- timestep
