@@ -252,7 +252,7 @@ station.default <- function(loc=NULL, param='t2m',src = NULL, path=NULL, qual=NU
       ##
       #if (toupper(param[i])=='TMAX') param[] <- 'tx' #REB 2016-07-26: dirty bug-rectification
       if (is.null(path.ecad)) path <- paste("data.",toupper(src[i]),sep="") else path <- path.ecad ## default path
-      if (is.null(url.ecad)) url="http://www.ecad.eu/utils/downloadfile.php?file=download/ECA_nonblend" else url <- url.ecad ## default url
+      if (is.null(url.ecad)) url="http://www.ecad.eu/utils/downloadfile.php?file=download/ECA_blend" else url <- url.ecad ## default url
       x <- ecad.station(stid=stid[i],lon=lon[i],lat=lat[i],alt=alt[i],loc=loc[i],cntr=cntr[i],
                         qual=qual[i],param=param[i],verbose=verbose,path=path, url=url)
       if (verbose) {print("obs"); str(x)}
@@ -389,7 +389,7 @@ t2m.ghcnd.avg <- function(stid=NULL,lon=NULL,lat=NULL,loc=NULL,alt=NULL,cntr=NUL
 
 ecad.station <- function(stid=NULL,lon=NULL,lat=NULL,loc=NULL,alt=NULL,cntr=NULL,
                          param=NULL,qual=NULL,path="data.ECAD",remove.suspect=FALSE,
-                         url="http://www.ecad.eu/utils/downloadfile.php?file=download/ECA_nonblend",verbose=FALSE) {  ## it=it,nmin=nmin
+                         url="http://www.ecad.eu/utils/downloadfile.php?file=download/ECA_blend",verbose=FALSE) {  ## it=it,nmin=nmin
   ## ECAD basic function to retrieve data for one station
   ## http://eca.knmi.nl/
   ## ECA&D was initiated by the ECSN in 1998 
@@ -429,7 +429,7 @@ ecad.station <- function(stid=NULL,lon=NULL,lat=NULL,loc=NULL,alt=NULL,cntr=NULL
   text  <- unlist(strsplit(fdata,split="/"))
   text2 <- text[length(text)]
   destfile <- file.path(path,text2,fsep= .Platform$file.sep)
-  text3 <- paste('ECA','nonblend',tolower(param1),sep='_')
+  text3 <- paste('ECA','blend',tolower(param1),sep='_')
   destfile2 <- file.path(path,text3,fsep= .Platform$file.sep)
   ## 
   ## If zip file exist and not the data folder, then unzip
@@ -497,7 +497,7 @@ ecad.station <- function(stid=NULL,lon=NULL,lat=NULL,loc=NULL,alt=NULL,cntr=NULL
   ECAD <- as.station(ECAD, stid=stid, lon=lon, lat=lat, alt=alt,
                      ## ele=esd2ele(param), freq=1,calendar='gregorian',
                      quality=qual, cntr=cntr, loc=loc, src='ECAD',
-                     url=paste("http://eca.knmi.nl/utils/downloadfile.php?file=download/ECA_nonblend_",as.character(param),".zip",sep=''), param=param, aspect="original",
+                     url=paste("http://eca.knmi.nl/utils/downloadfile.php?file=download/ECA_blend_",as.character(param),".zip",sep=''), param=param, aspect="original",
                      unit=switch(param1,'TG'='degree Celsius','TX'='deg C','TN'='deg C', 'CC'='oktas','DD'='degrees','FG'='m/s', 'FX'='m/s','HU'='%','PP'='hPa', 'SS'='hours','RR'='mm/day'),
                      longname=as.character(ele2param(ele=ele,src="ECAD")[2]),
                      reference="Klein Tank, A.M.G. and Coauthors, 2002. Daily dataset of 20th-century surface air temperature and precipitation series for the European Climate Assessment. Int. J. of Climatol., 22, 1441-1453.",
